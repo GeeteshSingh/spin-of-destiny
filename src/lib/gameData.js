@@ -1,4 +1,5 @@
 // src/lib/gameData.js
+
 export const gameData = {
     redemptionPets: [
         {"name": "Wise Owl", "description": "Provides cryptic but helpful advice", "type": "guidance"},
@@ -8,9 +9,9 @@ export const gameData = {
         {"name": "Talking Raven", "description": "Messenger between worlds", "type": "communication"},
         {"name": "Ancient Turtle", "description": "Grants patience and wisdom", "type": "wisdom"},
         {"name": "Phoenix Chick", "description": "Symbolizes rebirth and hope", "type": "renewal"},
-        {"name": "Spirit Guide", "description": "Shows the path to redemption", "type": "guidance"},
-        {"name": "No Redemption Pet", "description": "Walk the path alone", "type": "independence"}
+        {"name": "Spirit Guide", "description": "Shows the path to redemption", "type": "guidance"}
     ],
+
     categories: {
         "species": {
             "name": "Species",
@@ -46,8 +47,15 @@ export const gameData = {
             "name": "Redemption Path",
             "strong": ["Forging Alliances", "Self-Sacrifice", "Confronting Past Demons", "Mastering Inner Chi", "Becoming a Mentor", "Discovering Hidden Truths", "Upholding Justice", "Acts of Unconditional Kindness", "Protecting the Innocent", "Embracing Humility"],
             "weak": ["Apologizing profusely (and insincerely)", "Writing a strongly worded letter", "Joining a support group (then leaving)", "Doing a minor good deed once a year", "Donating to charity (using someone else's money)", "Attempting to bake a cake for redemption (it burns)", "Muttering vague apologies to strangers", "Thinking about being good, but not doing it", "Redecorating their lair with 'positive vibes'", "Hoping someone else fixes it"]
+        },
+        // NEW: Pet Redemption Spin (8th spin)
+        "pet_redemption": {
+            "name": "Pet Redemption Bonus",
+            "strong": ["Pet Bonus Available!"], // Only 1 strong option (10% chance)
+            "weak": ["NO", "NO", "NO", "NO", "NO", "NO", "NO", "NO", "NO"] // 9 weak "NO" options (90% chance)
         }
     },
+
     commentary: {
         spinStart: [
             "Prepare for the inevitable!", "Destiny awaits... or at least a random outcome.", "The wheel turns, as does your stomach.", "May the odds be... whatever the wheel decides.", "Brace yourself for impact!"
@@ -58,6 +66,15 @@ export const gameData = {
             ],
             weak: [
                 "Oh dear. That's... something.", "Well, it could be worse. Maybe.", "The universe has a strange sense of humor.", "An unexpected turn, to say the least.", "Perhaps 'unique' is the right word."
+            ]
+        },
+        // NEW: Pet redemption specific commentary
+        petRedemption: {
+            petAvailable: [
+                "A mystical companion awaits! Choose wisely...", "The universe offers you a loyal friend!", "A pet bonus has appeared! This is rare indeed!", "Your journey need not be alone after all!", "Fate smiles upon you with companionship!"
+            ],
+            noPet: [
+                "The path of solitude calls to you.", "No pet for you - independence is your strength.", "You walk alone, as many heroes do.", "Self-reliance is its own form of power.", "The lone wolf approach it is!"
             ]
         },
         final: {

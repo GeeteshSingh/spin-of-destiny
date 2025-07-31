@@ -1,29 +1,35 @@
 // src/app/page.js
-"use client"; // This component needs to be a Client Component
+"use client";
 
 import { useState, useEffect } from 'react';
-import { useGameState } from './layout'; // Import from the layout context
+import { useGameState } from './layout';
 import WelcomeScreen from '../components/WelcomeScreen';
-import RedemptionScreen from '../components/RedemptionScreen';
 import GameScreen from '../components/GameScreen';
 import ResultScreen from '../components/ResultsScreen';
 import LeaderboardScreen from '../components/LeaderboardScreen';
-import { initialGameState, calculateCharacterBalance, getFinalCommentaryType, generateCharacterName, exportCharacter } from '@/lib/gameLogic';
-import { gameData } from '@/lib/gameData'; // For accessing categories in results screen
-
+import PetRedemptionModal from '../components/RedemptionScreen';
+import {
+    initialGameState,
+    calculateCharacterBalance,
+    getFinalCommentaryType,
+    generateCharacterName,
+    exportCharacter,
+    isPetRedemptionSpin
+} from '@/lib/gameLogic';
+import { gameData } from '@/lib/gameData';
 
 export default function HomePage() {
     const { gameState, setGameState, playSound, updateLeaderboard } = useGameState();
-    const [currentScreen, setCurrentScreen] = useState('welcome'); // State to manage which screen is active
+    const [currentScreen, setCurrentScreen] = useState('welcome');
 
-    // Destructure game state for easier access in components
-    const { character, redemptionPet, characterBalance, spinCount, maxSpins, leaderboard } = gameState;
+    // Destructure game state for easier access
+    const { character, redemptionPet, characterBalance, spinCount, maxSpins, leaderboard, showPetSelectionModal } = gameState;
 
     // --- Callbacks for screen transitions ---
     const handleStartGame = () => {
-        // Reset game state for a new character creation
+        // Reset game state for a new character creation and go directly to game
         setGameState(initialGameState);
-        setCurrentScreen('redemption');
+        setCurrentScreen('game');
         playSound('select', 0.3);
     };
 
@@ -32,31 +38,84 @@ export default function HomePage() {
         playSound('select', 0.3);
     };
 
-    const handleConfirmPetSelection = (selectedPet) => {
-        if (selectedPet) {
-            setGameState(prev => ({ ...prev, redemptionPet: selectedPet }));
-            setCurrentScreen('game');
-            // Initialize game loop specific states here if needed
-            setGameState(prev => ({ ...prev, spinCount: 0, character: {} })); // Reset for game start
-            playSound('select', 0.3);
+    // Handle spin updates during the game
+    const handleSpinUpdate = (updateFunction) => {
+        setGameState(updateFunction);
+    };
+
+    // Handle when a spin is completed
+    const handleSpinComplete = (finalCharacterTraits, spinResult = null) => {
+        const newSpinCount = spinCount + 1;
+
+        // Check if this was the pet redemption spin (8th spin)
+        if (isPetRedemptionSpin(spinCount)) {
+            if (spinResult === "Pet Bonus Available!") {
+                // Show pet selection modal
+                setGameState(prev => ({
+                    ...prev,
+                    character: finalCharacterTraits,
+                    spinCount: newSpinCount,
+                    showPetSelectionModal: true
+                }));
+            } else {
+                // "NO" was selected, continue to results without pet
+                handleGameEnd(finalCharacterTraits, null);
+            }
+        } else if (newSpinCount === maxSpins) {
+            // All regular spins are done, ready for pet redemption spin
+            setGameState(prev => ({
+                ...prev,
+                character: finalCharacterTraits,
+                spinCount: newSpinCount
+            }));
         } else {
-            alert('Please select a redemption pet!');
+            // Regular spin completed, continue to next spin
+            setGameState(prev => ({
+                ...prev,
+                character: finalCharacterTraits,
+                spinCount: newSpinCount
+            }));
         }
     };
 
-    const handleGameEnd = (finalCharacterTraits) => {
-        // Calculate final balance and commentary here, then transition
-        const finalBalance = calculateCharacterBalance(finalCharacterTraits, redemptionPet);
-        const finalCommentary = getFinalCommentaryType(finalBalance, redemptionPet, finalCharacterTraits);
+    // Handle pet selection from modal
+    const handlePetSelection = (selectedPet) => {
+        setGameState(prev => ({
+            ...prev,
+            redemptionPet: selectedPet,
+            showPetSelectionModal: false
+        }));
+
+        // Now proceed to game end with the selected pet
+        handleGameEnd(character, selectedPet);
+    };
+
+    // Handle declining pet selection
+    const handleDeclinePet = () => {
+        setGameState(prev => ({
+            ...prev,
+            showPetSelectionModal: false
+        }));
+
+        // Proceed to game end without pet
+        handleGameEnd(character, null);
+    };
+
+    const handleGameEnd = (finalCharacterTraits, finalPet = redemptionPet) => {
+        // Calculate final balance and commentary
+        const finalBalance = calculateCharacterBalance(finalCharacterTraits, finalPet);
+        const finalCommentary = getFinalCommentaryType(finalBalance, finalPet, finalCharacterTraits);
         const finalName = generateCharacterName(finalCharacterTraits);
 
         setGameState(prev => ({
             ...prev,
             character: finalCharacterTraits,
+            redemptionPet: finalPet,
             characterBalance: finalBalance,
             commentaryText: gameData.commentary.final[finalCommentary][Math.floor(Math.random() * gameData.commentary.final[finalCommentary].length)],
             finalCharacterName: finalName,
         }));
+
         setCurrentScreen('results');
         playSound('select', 0.3);
     };
@@ -70,51 +129,50 @@ export default function HomePage() {
             createdAt: new Date().toISOString()
         };
 
-        exportCharacter(characterDataToSave); // Save as JSON
+        exportCharacter(characterDataToSave);
 
         // Update leaderboards
         const newLeaderboard = { ...leaderboard };
-        newLeaderboard.recent.unshift(characterDataToSave); // Always add to recent
+        newLeaderboard.recent.unshift(characterDataToSave);
 
         // Add to specific leaderboards based on balance/characteristics
         if (characterDataToSave.balance > 40) {
             newLeaderboard.overpowered.unshift(characterDataToSave);
         }
-        // Implement logic for creative, comedy, redemption scores if applicable
 
-        updateLeaderboard(newLeaderboard); // Update global state and localStorage
+        updateLeaderboard(newLeaderboard);
         alert('Character saved and added to leaderboards!');
         playSound('select', 0.3);
     };
 
     const handleStartNewGame = () => {
-        setGameState(initialGameState); // Reset all game state
+        setGameState(initialGameState);
         setCurrentScreen('welcome');
         playSound('select', 0.3);
     };
 
     const handleBackToMainMenu = () => {
-        setGameState(initialGameState); // Reset all game state
+        setGameState(initialGameState);
         setCurrentScreen('welcome');
         playSound('select', 0.3);
     };
 
-
     return (
-        <div className="relative flex-grow flex justify-center items-center p-4"> {/* Container for screens */}
+        <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-900">
+            {/* Pet Redemption Modal - Shows when pet bonus is available */}
+            {showPetSelectionModal && (
+                <PetRedemptionModal
+                    pets={gameData.redemptionPets}
+                    onSelectPet={handlePetSelection}
+                    onDecline={handleDeclinePet}
+                />
+            )}
+
+            {/* Screen Routing */}
             {currentScreen === 'welcome' && (
                 <WelcomeScreen
                     onStartGame={handleStartGame}
                     onViewLeaderboards={handleViewLeaderboards}
-                />
-            )}
-
-            {currentScreen === 'redemption' && (
-                <RedemptionScreen
-                    redemptionPets={gameData.redemptionPets}
-                    selectedPet={redemptionPet}
-                    onSelectPet={(pet) => setGameState(prev => ({ ...prev, redemptionPet: pet }))}
-                    onConfirmSelection={() => handleConfirmPetSelection(redemptionPet)}
                 />
             )}
 
@@ -126,9 +184,9 @@ export default function HomePage() {
                     commentaryText={gameState.commentaryText}
                     spinCategoryTitle={gameState.spinCategoryTitle}
                     spinSubtitle={gameState.spinSubtitle}
-                    onSpinUpdate={setGameState} // Pass setGameState for GameScreen to update itself
-                    onGameEnd={handleGameEnd}
-                    playSound={playSound} // Pass playSound to GameScreen
+                    onSpinUpdate={handleSpinUpdate}
+                    onSpinComplete={handleSpinComplete}
+                    playSound={playSound}
                 />
             )}
 
