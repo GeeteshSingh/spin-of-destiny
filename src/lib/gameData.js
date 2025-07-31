@@ -1,95 +1,198 @@
-// src/lib/gameData.js
+// src/data/gameData.js - Complete 8-Spin Character Creation System
 
-export const gameData = {
-    redemptionPets: [
-        {"name": "Wise Owl", "description": "Provides cryptic but helpful advice", "type": "guidance"},
-        {"name": "Loyal Dog", "description": "Never abandons you in dark times", "type": "loyalty"},
-        {"name": "Mystical Cat", "description": "Sees through illusions and lies", "type": "insight"},
-        {"name": "Guardian Spirit", "description": "Protects against spiritual threats", "type": "protection"},
-        {"name": "Talking Raven", "description": "Messenger between worlds", "type": "communication"},
-        {"name": "Ancient Turtle", "description": "Grants patience and wisdom", "type": "wisdom"},
-        {"name": "Phoenix Chick", "description": "Symbolizes rebirth and hope", "type": "renewal"},
-        {"name": "Spirit Guide", "description": "Shows the path to redemption", "type": "guidance"}
-    ],
+export const GAME_PHASES = {
+    1: 'character_class',
+    2: 'origin_story',
+    3: 'power_source',
+    4: 'primary_ability',
+    5: 'weakness',
+    6: 'personality_trait',
+    7: 'moral_alignment',
+    8: 'pet_redemption'
+};
 
-    categories: {
-        "species": {
-            "name": "Species",
-            "strong": ["Dragon", "Angel", "Vampire Lord", "Demon Prince", "Divine Being", "Phoenix", "Celestial", "Ancient Elf", "Titan", "Primordial"],
-            "weak": ["Fairy", "Goblin", "Regular Human", "Halfling", "Garden Gnome", "House Cat", "Anxious Ghost", "Clumsy Dwarf", "Sleepy Sloth", "Confused Squirrel"]
-        },
-        "powers": {
-            "name": "Powers",
-            "strong": ["Telekinesis", "Elemental Manipulation", "Reality Warping", "Immortality", "Super Strength", "Time Control", "Energy Absorption", "Mind Control", "Shapeshifting", "Omniscience"],
-            "weak": ["Can only turn into a teacup", "Grows flowers on demand (only daisies)", "Can only levitate small crumbs", "Ability to remember every sock lost", "Communicates only through interpretive dance", "Super sensitive to loud noises", "Can change hair color at will (only to neon green)", "Ability to perfectly fold laundry", "Can summon a single, very confused pigeon", "Always knows the exact temperature of lukewarm water"]
-        },
-        "weaknesses": {
-            "name": "Weaknesses",
-            "strong": ["Kryptonite (specific to your species/powers)", "Vulnerability to sunlight", "Existential dread", "Can't resist shiny objects", "Loves bad puns too much", "Ticklish everywhere", "Always gets lost, even with a map", "Allergic to heroic speeches", "Has a phobia of doorknobs", "Constantly forgets names"],
-            "weak": ["Mild discomfort from loud chewing", "Dislikes Mondays", "Occasionally misplaces keys", "Thinks cilantro tastes like soap", "Gets sleepy after big meals", "Has a slight fear of heights (only really tall ladders)", "Can't parallel park", "Forgets to water plants sometimes", "Has a messy desk", "Sings slightly off-key in the shower"]
-        },
-        "origin": {
-            "name": "Origin",
-            "strong": ["Ancient Prophecy", "Cosmic Anomaly", "Divine Intervention", "Secret Government Experiment", "Born from a Dying Star", "Found in a Lost Dimension", "Awakened from Millennia of Slumber", "Forged in the Heart of a Volcano", "Descendant of Legendary Heroes", "Created by a Mad God"],
-            "weak": ["Fell out of a tree", "Found under a rock", "Was a misplaced package", "Accidentally cloned from a dust bunny", "Woke up in a ditch with amnesia", "Originated from a very bland office building", "Appeared after a bad burrito", "Spawned from a spilled coffee cup", "Came from a very enthusiastic fan fiction", "Was a typo in a creation spell"]
-        },
-        "personality": {
-            "name": "Personality",
-            "strong": ["Fearless Leader", "Wise & Calm", "Charismatic & Inspiring", "Ruthless Strategist", "Mysterious & Alluring", "Noble & Selfless", "Unyielding & Resilient", "Brilliant & Innovative", "Playful & Mischievous (but deadly)", "Stoic & Unwavering"],
-            "weak": ["Constantly second-guesses themselves", "Overly dramatic", "Easily distracted by butterflies", "Speaks only in riddles (bad ones)", "Obsessed with collecting spoons", "Always apologizes, even when not at fault", "Has an inexplicable fear of small talk", "Believes everything is a conspiracy", "Cannot tell a lie (even white lies)", "Gets anxious in crowds"]
-        },
-        "weakness_response": {
-            "name": "Weakness Response",
-            "strong": ["Overcomes with sheer will", "Finds an unexpected loophole", "Turns weakness into a strength", "Gets help from a powerful ally", "Learns a new skill to mitigate it", "It's a temporary setback", "Outsmarts the limitation", "Finds a magical artifact to negate it", "Accepts and finds peace with it", "It's just a phase, really"],
-            "weak": ["Cries uncontrollably", "Gives up immediately", "Blames everyone else", "Goes into a deep sulk", "Hides under a blanket", "Buys too much junk food", "Starts a very passive-aggressive blog", "Converts to a new obscure religion", "Demands a refund from destiny", "Pretends it doesn't exist"]
-        },
-        "redemption_path": {
-            "name": "Redemption Path",
-            "strong": ["Forging Alliances", "Self-Sacrifice", "Confronting Past Demons", "Mastering Inner Chi", "Becoming a Mentor", "Discovering Hidden Truths", "Upholding Justice", "Acts of Unconditional Kindness", "Protecting the Innocent", "Embracing Humility"],
-            "weak": ["Apologizing profusely (and insincerely)", "Writing a strongly worded letter", "Joining a support group (then leaving)", "Doing a minor good deed once a year", "Donating to charity (using someone else's money)", "Attempting to bake a cake for redemption (it burns)", "Muttering vague apologies to strangers", "Thinking about being good, but not doing it", "Redecorating their lair with 'positive vibes'", "Hoping someone else fixes it"]
-        },
-        // NEW: Pet Redemption Spin (8th spin)
-        "pet_redemption": {
-            "name": "Pet Redemption Bonus",
-            "strong": ["Pet Bonus Available!"], // Only 1 strong option (10% chance)
-            "weak": ["NO", "NO", "NO", "NO", "NO", "NO", "NO", "NO", "NO"] // 9 weak "NO" options (90% chance)
-        }
+export const SPIN_DATA = {
+    character_class: {
+        title: "Character Class",
+        description: "What type of warrior are you?",
+        segments: [
+            { text: "Warrior", value: "warrior", fillStyle: "#FF6B6B", power: 800 },
+            { text: "Mage", value: "mage", fillStyle: "#4ECDC4", power: 750 },
+            { text: "Rogue", value: "rogue", fillStyle: "#45B7D1", power: 700 },
+            { text: "Paladin", value: "paladin", fillStyle: "#96CEB4", power: 850 },
+            { text: "Archer", value: "archer", fillStyle: "#FFEAA7", power: 650 },
+            { text: "Berserker", value: "berserker", fillStyle: "#DDA0DD", power: 900 },
+            { text: "Monk", value: "monk", fillStyle: "#98D8C8", power: 720 },
+            { text: "Necromancer", value: "necromancer", fillStyle: "#F7DC6F", power: 780 }
+        ]
     },
 
-    commentary: {
-        spinStart: [
-            "Prepare for the inevitable!", "Destiny awaits... or at least a random outcome.", "The wheel turns, as does your stomach.", "May the odds be... whatever the wheel decides.", "Brace yourself for impact!"
-        ],
-        spinEnd: {
-            strong: [
-                "A powerful choice! The universe approves.", "Magnificent! Your legend grows.", "Truly a trait of champions!", "An excellent twist of fate!", "Destiny smiles upon you!"
-            ],
-            weak: [
-                "Oh dear. That's... something.", "Well, it could be worse. Maybe.", "The universe has a strange sense of humor.", "An unexpected turn, to say the least.", "Perhaps 'unique' is the right word."
-            ]
-        },
-        // NEW: Pet redemption specific commentary
-        petRedemption: {
-            petAvailable: [
-                "A mystical companion awaits! Choose wisely...", "The universe offers you a loyal friend!", "A pet bonus has appeared! This is rare indeed!", "Your journey need not be alone after all!", "Fate smiles upon you with companionship!"
-            ],
-            noPet: [
-                "The path of solitude calls to you.", "No pet for you - independence is your strength.", "You walk alone, as many heroes do.", "Self-reliance is its own form of power.", "The lone wolf approach it is!"
-            ]
-        },
-        final: {
-            overpowered: [
-                "Behold, a legend walks among us! The very fabric of reality trembles.", "A true force of nature! Even the gods are taking notes.", "Unstoppable! You're basically a walking cheat code.", "So powerful, it's almost unfair. Almost.", "The epitome of greatness. Now go save the multiverse or something."
-            ],
-            creative: [
-                "What an eclectic mix! You're certainly one-of-a-kind.", "An artistic masterpiece of fate!", "Truly outside the box. Who needs norms?", "The universe's most interesting character, hands down.", "A tapestry of destiny, woven with unexpected threads."
-            ],
-            comedy: [
-                "Hilarious! The cosmic joke has found its punchline.", "You're a walking sitcom, and we're all watching.", "The funniest character the universe has ever seen. Bravo!", "Prepare for side-splitting adventures!", "Your destiny is to make everyone laugh. Mission accomplished."
-            ],
-            redemption: [
-                "The path to redemption is clear! A true triumph of spirit.", "From darkness to light, a beautiful journey.", "The cosmos celebrates your newfound virtue!", "A story of hope and transformation.", "Redeemed! Now go do some good in the world."
-            ]
-        }
+    origin_story: {
+        title: "Origin Story",
+        description: "How did your journey begin?",
+        segments: [
+            { text: "Chosen One", value: "chosen_one", fillStyle: "#FF6B6B", power: 500 },
+            { text: "Tragic Past", value: "tragic_past", fillStyle: "#4ECDC4", power: 400 },
+            { text: "Noble Birth", value: "noble_birth", fillStyle: "#45B7D1", power: 300 },
+            { text: "Street Orphan", value: "street_orphan", fillStyle: "#96CEB4", power: 350 },
+            { text: "Cursed Bloodline", value: "cursed_bloodline", fillStyle: "#FFEAA7", power: 450 },
+            { text: "Divine Blessing", value: "divine_blessing", fillStyle: "#DDA0DD", power: 550 },
+            { text: "Scientific Accident", value: "scientific_accident", fillStyle: "#98D8C8", power: 420 },
+            { text: "Ancient Prophecy", value: "ancient_prophecy", fillStyle: "#F7DC6F", power: 480 }
+        ]
+    },
+
+    power_source: {
+        title: "Power Source",
+        description: "What fuels your abilities?",
+        segments: [
+            { text: "Inner Chi", value: "inner_chi", fillStyle: "#FF6B6B", power: 600 },
+            { text: "Arcane Magic", value: "arcane_magic", fillStyle: "#4ECDC4", power: 650 },
+            { text: "Divine Energy", value: "divine_energy", fillStyle: "#45B7D1", power: 700 },
+            { text: "Dark Arts", value: "dark_arts", fillStyle: "#96CEB4", power: 680 },
+            { text: "Technology", value: "technology", fillStyle: "#FFEAA7", power: 550 },
+            { text: "Elemental Force", value: "elemental_force", fillStyle: "#DDA0DD", power: 620 },
+            { text: "Psychic Power", value: "psychic_power", fillStyle: "#98D8C8", power: 640 },
+            { text: "Cosmic Energy", value: "cosmic_energy", fillStyle: "#F7DC6F", power: 750 }
+        ]
+    },
+
+    primary_ability: {
+        title: "Primary Ability",
+        description: "Your signature power!",
+        segments: [
+            { text: "Super Strength", value: "super_strength", fillStyle: "#FF6B6B", power: 800 },
+            { text: "Time Control", value: "time_control", fillStyle: "#4ECDC4", power: 950 },
+            { text: "Mind Reading", value: "mind_reading", fillStyle: "#45B7D1", power: 700 },
+            { text: "Invisibility", value: "invisibility", fillStyle: "#96CEB4", power: 650 },
+            { text: "Teleportation", value: "teleportation", fillStyle: "#FFEAA7", power: 750 },
+            { text: "Energy Blasts", value: "energy_blasts", fillStyle: "#DDA0DD", power: 800 },
+            { text: "Shape Shifting", value: "shape_shifting", fillStyle: "#98D8C8", power: 720 },
+            { text: "Reality Warping", value: "reality_warping", fillStyle: "#F7DC6F", power: 1000 }
+        ]
+    },
+
+    weakness: {
+        title: "Fatal Weakness",
+        description: "Every hero has an Achilles heel...",
+        segments: [
+            { text: "Overconfidence", value: "overconfidence", fillStyle: "#FF6B6B", power: -200 },
+            { text: "Kryptonite", value: "kryptonite", fillStyle: "#4ECDC4", power: -300 },
+            { text: "Water", value: "water", fillStyle: "#45B7D1", power: -150 },
+            { text: "Silver", value: "silver", fillStyle: "#96CEB4", power: -180 },
+            { text: "Sunlight", value: "sunlight", fillStyle: "#FFEAA7", power: -220 },
+            { text: "Iron", value: "iron", fillStyle: "#DDA0DD", power: -160 },
+            { text: "Loud Noises", value: "loud_noises", fillStyle: "#98D8C8", power: -120 },
+            { text: "Magic Circles", value: "magic_circles", fillStyle: "#F7DC6F", power: -250 }
+        ]
+    },
+
+    personality_trait: {
+        title: "Personality Trait",
+        description: "What defines your character?",
+        segments: [
+            { text: "Brave", value: "brave", fillStyle: "#FF6B6B", power: 300, alignment: "hero" },
+            { text: "Cunning", value: "cunning", fillStyle: "#4ECDC4", power: 250, alignment: "anti-hero" },
+            { text: "Ruthless", value: "ruthless", fillStyle: "#45B7D1", power: 280, alignment: "villain" },
+            { text: "Compassionate", value: "compassionate", fillStyle: "#96CEB4", power: 320, alignment: "hero" },
+            { text: "Mysterious", value: "mysterious", fillStyle: "#FFEAA7", power: 260, alignment: "anti-hero" },
+            { text: "Ambitious", value: "ambitious", fillStyle: "#DDA0DD", power: 290, alignment: "villain" },
+            { text: "Loyal", value: "loyal", fillStyle: "#98D8C8", power: 310, alignment: "hero" },
+            { text: "Chaotic", value: "chaotic", fillStyle: "#F7DC6F", power: 270, alignment: "anti-hero" }
+        ]
+    },
+
+    moral_alignment: {
+        title: "Moral Alignment",
+        description: "Where do you stand in the eternal battle?",
+        segments: [
+            { text: "Lawful Good", value: "lawful_good", fillStyle: "#FFD700", power: 400, type: "hero" },
+            { text: "Chaotic Good", value: "chaotic_good", fillStyle: "#87CEEB", power: 350, type: "hero" },
+            { text: "True Neutral", value: "true_neutral", fillStyle: "#DDA0DD", power: 300, type: "anti-hero" },
+            { text: "Chaotic Neutral", value: "chaotic_neutral", fillStyle: "#F0E68C", power: 320, type: "anti-hero" },
+            { text: "Lawful Evil", value: "lawful_evil", fillStyle: "#DC143C", power: 380, type: "villain" },
+            { text: "Neutral Evil", value: "neutral_evil", fillStyle: "#8B0000", power: 360, type: "villain" },
+            { text: "Chaotic Evil", value: "chaotic_evil", fillStyle: "#4B0082", power: 400, type: "villain" },
+            { text: "Lawful Neutral", value: "lawful_neutral", fillStyle: "#B0C4DE", power: 280, type: "anti-hero" }
+        ]
+    },
+
+    // THE CRUCIAL 8TH SPIN - Pet Redemption with 90% NO, 10% Pet Bonus
+    pet_redemption: {
+        title: "Pet Redemption",
+        description: "A rare companion may join your quest...",
+        segments: [
+            { text: "NO", value: "no_pet", fillStyle: "#696969", power: 0 },
+            { text: "NO", value: "no_pet", fillStyle: "#696969", power: 0 },
+            { text: "NO", value: "no_pet", fillStyle: "#696969", power: 0 },
+            { text: "NO", value: "no_pet", fillStyle: "#696969", power: 0 },
+            { text: "NO", value: "no_pet", fillStyle: "#696969", power: 0 },
+            { text: "NO", value: "no_pet", fillStyle: "#696969", power: 0 },
+            { text: "NO", value: "no_pet", fillStyle: "#696969", power: 0 },
+            { text: "NO", value: "no_pet", fillStyle: "#696969", power: 0 },
+            { text: "NO", value: "no_pet", fillStyle: "#696969", power: 0 },
+            { text: "PET BONUS!", value: "pet_available", fillStyle: "#FFD700", power: 500 }
+        ]
     }
 };
+
+// Pet options available when player hits the 10% pet bonus
+export const PET_OPTIONS = [
+    { name: "Dragon Hatchling", power: 800, type: "combat", rarity: "legendary" },
+    { name: "Phoenix Companion", power: 750, type: "support", rarity: "epic" },
+    { name: "Shadow Wolf", power: 650, type: "stealth", rarity: "rare" },
+    { name: "Crystal Unicorn", power: 700, type: "healing", rarity: "epic" },
+    { name: "Thunder Eagle", power: 600, type: "speed", rarity: "rare" },
+    { name: "Cosmic Cat", power: 900, type: "cosmic", rarity: "legendary" },
+    { name: "Fire Salamander", power: 550, type: "elemental", rarity: "uncommon" },
+    { name: "Spirit Fox", power: 680, type: "magic", rarity: "rare" }
+];
+
+export const CHARACTER_TYPES = {
+    HERO: "hero",
+    ANTI_HERO: "anti-hero",
+    VILLAIN: "villain"
+};
+
+export const POWER_TIERS = {
+    SSS: { min: 9000, max: 15000, label: "Cosmic God", color: "#FF1493" },
+    SS: { min: 7500, max: 8999, label: "Divine Being", color: "#FFD700" },
+    S: { min: 6000, max: 7499, label: "Legendary Hero", color: "#FF6347" },
+    A: { min: 4500, max: 5999, label: "Elite Champion", color: "#32CD32" },
+    B: { min: 3000, max: 4499, label: "Skilled Warrior", color: "#4169E1" },
+    C: { min: 2000, max: 2999, label: "Competent Fighter", color: "#9370DB" },
+    D: { min: 1000, max: 1999, label: "Novice Adventurer", color: "#20B2AA" },
+    E: { min: 0, max: 999, label: "Beginner", color: "#808080" }
+};
+
+// Function to calculate total character power
+export function calculateCharacterPower(traits) {
+    let totalPower = 0;
+
+    Object.values(traits).forEach(trait => {
+        if (trait && trait.power) {
+            totalPower += trait.power;
+        }
+    });
+
+    return Math.max(0, totalPower); // Ensure non-negative
+}
+
+// Function to determine character type from traits
+export function determineCharacterType(traits) {
+    const alignment = traits.moral_alignment;
+    const personality = traits.personality_trait;
+
+    // Primary determination from moral alignment
+    if (alignment && alignment.type) {
+        return alignment.type;
+    }
+
+    // Secondary determination from personality
+    if (personality && personality.alignment) {
+        return personality.alignment;
+    }
+
+    // Default fallback
+    return CHARACTER_TYPES.ANTI_HERO;
+}

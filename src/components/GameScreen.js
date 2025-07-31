@@ -1,273 +1,86 @@
-// src/components/GameScreen.js
-"use client";
+'use client';
 
-import { useRef, useEffect, useState } from 'react';
-import { gameData } from '../lib/gameData';
-import { wheelOptions } from '../lib/winwheelConfig';
-import { getCommentary, getCategoriesToSpin, isPetRedemptionSpin } from '../lib/gameLogic';
+import { useEffect, useState, useRef } from 'react';
 
-// Make sure Winwheel is available globally
-const Winwheel = typeof window !== 'undefined' ? window.Winwheel : null;
-
-export default function GameScreen({
-                                       character,
-                                       spinCount,
-                                       maxSpins,
-                                       commentaryText,
-                                       spinCategoryTitle,
-                                       spinSubtitle,
-                                       onSpinUpdate,
-                                       onSpinComplete,
-                                       playSound,
-                                   }) {
-    const canvasRef = useRef(null);
-    const [currentWheel, setCurrentWheel] = useState(null);
-    const [isSpinning, setIsSpinning] = useState(false);
-
-    // Get categories for regular character creation (first 7 spins)
-    const categoriesToSpin = getCategoriesToSpin();
-
-    const setupWheel = () => {
-        if (!Winwheel || !canvasRef.current) {
-            console.warn("Winwheel library or canvas not available.");
-            return;
-        }
-
-        // Check if this is the pet redemption spin (8th spin)
-        if (isPetRedemptionSpin(spinCount)) {
-            setupPetRedemptionWheel();
-        } else {
-            setupRegularCharacterWheel();
-        }
-    };
-
-    const setupPetRedemptionWheel = () => {
-        const petRedemptionCategory = gameData.categories.pet_redemption;
-
-        onSpinUpdate(prev => ({
-            ...prev,
-            spinCategoryTitle: `Final Spin: ${petRedemptionCategory.name}`,
-            spinSubtitle: "Will fate grant you a mystical companion?",
-            commentaryText: "The final spin... will you walk alone or find a companion?"
-        }));
-
-        const segments = [
-            ...petRedemptionCategory.strong.map(name => ({ text: name, type: 'strong' })),
-            ...petRedemptionCategory.weak.map(name => ({ text: name, type: 'weak' })),
-        ];
-
-        // Shuffle segments for randomness
-        segments.sort(() => Math.random() - 0.5);
-
-        const newWheelOptions = {
-            ...wheelOptions,
-            numSegments: segments.length,
-            segments: segments.map(s => ({
-                textFillStyle: '#ffffff',
-                fillStyle: s.type === 'strong' ? '#10B981' : '#EF4444', // Green for pet available, red for NO
-                text: s.text,
-                type: s.type
-            })),
-            callbackFinished: (indicatedSegment) => {
-                setIsSpinning(false);
-                playSound('select', 0.3);
-
-                // Update commentary based on result
-                const commentaryType = indicatedSegment.text === "Pet Bonus Available!" ? 'petAvailable' : 'noPet';
-                onSpinUpdate(prev => ({
-                    ...prev,
-                    commentaryText: getCommentary(commentaryType)
-                }));
-
-                // Wait a moment for commentary to display, then proceed
-                setTimeout(() => {
-                    onSpinComplete(character, indicatedSegment.text);
-                }, 2000);
-            },
-        };
-
-        if (currentWheel) {
-            currentWheel.clearCanvas();
-        }
-
-        const newWheel = new Winwheel(newWheelOptions, canvasRef.current);
-        setCurrentWheel(newWheel);
-    };
-
-    const setupRegularCharacterWheel = () => {
-        const currentCategoryKey = categoriesToSpin[spinCount];
-        const currentCategory = gameData.categories[currentCategoryKey];
-
-        if (!currentCategory) {
-            // This shouldn't happen with proper flow, but handle gracefully
-            console.error("No category found for spin:", spinCount);
-            return;
-        }
-
-        onSpinUpdate(prev => ({
-            ...prev,
-            spinCategoryTitle: `Spinning for: ${currentCategory.name}`,
-            spinSubtitle: `What kind of ${currentCategory.name.toLowerCase()} will you be?`,
-            commentaryText: getCommentary('spinStart')
-        }));
-
-        const segments = [
-            ...currentCategory.strong.map(name => ({ text: name, type: 'strong' })),
-            ...currentCategory.weak.map(name => ({ text: name, type: 'weak' })),
-        ];
-
-        // Shuffle segments for randomness
-        segments.sort(() => Math.random() - 0.5);
-
-        const newWheelOptions = {
-            ...wheelOptions,
-            numSegments: segments.length,
-            segments: segments.map(s => ({
-                textFillStyle: '#ffffff',
-                fillStyle: s.type === 'strong' ? '#32B8C6' : '#DC2626',
-                text: s.text,
-                type: s.type
-            })),
-            callbackFinished: (indicatedSegment) => {
-                setIsSpinning(false);
-                playSound('select', 0.3);
-
-                const categoryKey = categoriesToSpin[spinCount];
-                const newTrait = {
-                    name: indicatedSegment.text,
-                    type: indicatedSegment.type
-                };
-
-                const updatedCharacter = {
-                    ...character,
-                    [categoryKey]: newTrait,
-                };
-
-                onSpinUpdate(prev => ({
-                    ...prev,
-                    commentaryText: getCommentary('spinEnd', indicatedSegment.type),
-                }));
-
-                // Wait a moment for commentary, then proceed to next spin
-                setTimeout(() => {
-                    onSpinComplete(updatedCharacter);
-                }, 1500);
-            },
-        };
-
-        if (currentWheel) {
-            currentWheel.clearCanvas();
-        }
-
-        const newWheel = new Winwheel(newWheelOptions, canvasRef.current);
-        setCurrentWheel(newWheel);
-    };
+export default function GameScreen() {
+    const wheelRef = useRef(null);
+    const [wheel, setWheel] = useState(null);
+    const [spinning, setSpinning] = useState(false);
 
     useEffect(() => {
-        if (!isSpinning && spinCount < maxSpins) {
-            setupWheel();
+        if (typeof window === 'undefined') return;
+
+        if (window.Winwheel && window.TweenMax) {
+            const myWheel = new window.Winwheel({
+                canvasId: 'wheel-canvas',
+                numSegments: 8,
+                outerRadius: 200,
+                textFontSize: 16,
+                segments: [
+                    { fillStyle: '#eae56f', text: 'Option 1' },
+                    { fillStyle: '#89f26e', text: 'Option 2' },
+                    { fillStyle: '#7de6ef', text: 'Option 3' },
+                    { fillStyle: '#e7706f', text: 'Option 4' },
+                    { fillStyle: '#eae56f', text: 'Option 5' },
+                    { fillStyle: '#89f26e', text: 'Option 6' },
+                    { fillStyle: '#7de6ef', text: 'Option 7' },
+                    { fillStyle: '#e7706f', text: 'Option 8' },
+                ],
+                animation: {
+                    type: 'spinToStop',
+                    duration: 4,
+                    spins: 8,
+                    callbackFinished: () => {
+                        const stopAngle = wheel.wheelSpinStopAngle; // in degrees
+                        const segmentIndex = Math.floor(((stopAngle + 360) % 360) / (360 / wheel.numSegments));
+                        alert(`Stopped at segment: ${segmentIndex}`);
+                        setSpinning(false);
+                        // Show results or trigger next steps
+
+                    },
+                    soundTrigger: 'pin', // Optional: add sound on pin hit
+
+                },
+            });
+            setWheel(myWheel);
+
         }
-    }, [spinCount, maxSpins, isSpinning, character]);
+    }, []);
 
-    const handleSpinClick = () => {
-        if (!currentWheel || isSpinning) {
-            return;
+    const handleSpin = () => {
+        if (wheel && !spinning) {
+            setSpinning(true);
+            wheel.startAnimation();
+            // Optional: add sound effect here
+            // Example: play sound when spin starts
         }
-
-        setIsSpinning(true);
-        playSound('spin', 0.5);
-
-        onSpinUpdate(prev => ({
-            ...prev,
-            commentaryText: getCommentary('spinStart')
-        }));
-
-        currentWheel.startAnimation();
     };
 
-    // Display current character traits
-    const currentTraitsList = Object.entries(character).map(([category, trait]) => {
-        if (category === 'pet_redemption') return null; // Don't show pet redemption trait
-
-        return (
-            <div key={category} className="character-trait">
-                <span className="trait-category">{category.replace('_', ' ').toUpperCase()}:</span>
-                <span className={`trait-value ${trait.type === 'strong' ? 'strong' : 'weak'}`}>
-          {trait.name}
-        </span>
-            </div>
-        );
-    }).filter(Boolean);
-
-    // Calculate progress
-    const progress = (spinCount / maxSpins) * 100;
-
     return (
-        <div className="game-screen">
-            <div className="game-header">
-                <h1 className="category-title">{spinCategoryTitle}</h1>
-                <div className="progress-indicator">
-                    <div className="progress-bar">
-                        <div className="progress-fill" style={{ width: `${progress}%` }}></div>
-                    </div>
-                    <span className="progress-text">
-            {spinCount < 7
-                ? `Character Creation: ${spinCount}/7`
-                : spinCount === 7
-                    ? "Final Spin: Pet Redemption"
-                    : "Complete"
-            }
-          </span>
+        <div className="flex flex-col items-center justify-center min-h-screen p-8">
+            <canvas
+                id="wheel-canvas"
+                width="400"
+                height="400"
+                className="border-4 border-white rounded-full mb-8"
+            />
+            <div className="relative">
+                <canvas id="wheel-canvas" width="400" height="400" />
+                {/* Needle pointer */}
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <div className="w-2 h-18 bg-red-600 absolute -top-16 left-1/2 transform -translate-x-1/2" />
                 </div>
             </div>
 
-            <div className="game-content">
-                <div className="wheel-container">
-                    <div className="wheel-wrapper">
-                        <canvas
-                            ref={canvasRef}
-                            id="wheel-canvas"
-                            width="300"
-                            height="300"
-                            className={isSpinning ? 'spinning' : ''}
-                        />
-                        <div className={`wheel-pointer ${isSpinning ? 'spinning' : ''}`}></div>
-                    </div>
-
-                    {spinCount < maxSpins && (
-                        <button
-                            className={`spin-button btn btn--primary ${isSpinning ? 'spinning' : ''}`}
-                            onClick={handleSpinClick}
-                            disabled={isSpinning}
-                        >
-                            {isSpinning ? 'Spinning...' : isPetRedemptionSpin(spinCount) ? 'Final Spin!' : 'Spin the Wheel!'}
-                        </button>
-                    )}
-
-                    <p className="spin-instructions">
-                        {isPetRedemptionSpin(spinCount)
-                            ? "One final spin to determine if fate grants you a companion..."
-                            : spinSubtitle
-                        }
-                    </p>
-
-                    <div className="speech-bubble">
-                        <p className="quote-text">{commentaryText}</p>
-                        <div className="speech-bubble-arrow"></div>
-                    </div>
-                </div>
-
-                <div className="character-panel">
-                    <h3>Your Character So Far</h3>
-                    {currentTraitsList.length > 0 ? (
-                        <div className="character-traits">
-                            {currentTraitsList}
-                        </div>
-                    ) : (
-                        <p className="no-traits">No traits selected yet. Start spinning!</p>
-                    )}
-                </div>
-            </div>
+            <button
+                onClick={handleSpin}
+                disabled={spinning}
+                className={`px-8 py-4 text-xl font-bold rounded-lg ${
+                    spinning ? 'bg-gray-500' : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+            >
+                {spinning ? 'Spinning...' : 'SPIN!'}
+            </button>
         </div>
     );
 }
