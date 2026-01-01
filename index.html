@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin of Destiny - Character Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="screen active">
+        <div class="container">
+            <div class="welcome-content">
+                <h1 class="welcome-title">Spin of Destiny</h1>
+                <p class="welcome-subtitle">Create your ultimate character through the power of chance</p>
+                <p class="welcome-description">Experience 7 sequential spinning wheels, redemption pets, sarcastic
+                    commentary, and leaderboards!</p>
+                <div class="welcome-actions">
+                    <div class="name-entry-container" style="margin-bottom: 20px; width: 100%; max-width: 300px;">
+                        <input type="text" class="form-control" id="character-name-start"
+                            placeholder="Enter your hero's name">
+                    </div>
+                    <div class="email-entry-container" style="margin-bottom: 20px; width: 100%; max-width: 300px;">
+                        <input type="email" class="form-control" id="character-email-start"
+                            placeholder="Enter your email">
+                    </div>
+                    <button class="btn btn--primary btn--lg" id="start-btn">Begin Journey</button>
+                    <button class="btn btn--secondary btn--lg" id="leaderboard-btn">View Leaderboards</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Removed Redemption Pet Selection Screen -->
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div class="container">
+            <!-- Header -->
+            <div class="game-header">
+                <h2 class="category-title" id="category-title">Species</h2>
+                <div class="progress-indicator">
+                    <span id="progress-text">Category 1 of 7</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-content">
+                <!-- Spinning Wheel -->
+                <div class="wheel-container">
+                    <div class="wheel-wrapper">
+                        <canvas id="wheel-canvas" width="400" height="400"></canvas>
+                        <div class="wheel-pointer"></div>
+                    </div>
+                    <button class="btn btn--primary spin-button" id="spin-btn">
+                        <span class="spin-text">SPIN THE WHEEL</span>
+                        <span class="spinning-text" style="display: none;">SPINNING...</span>
+                    </button>
+                    <div class="spin-instructions">Click to spin and discover your fate!</div>
+
+                    <!-- Selection Display -->
+                    <div class="selection-display" id="selection-display" style="display: none;">
+                        <div class="selection-text">Selected: <span id="selected-option"></span></div>
+                    </div>
+
+                    <!-- Quote Display -->
+                    <div class="quote-display" id="quote-display" style="display: none;">
+                        <div class="speech-bubble">
+                            <div class="quote-text" id="quote-text"></div>
+                            <div class="speech-bubble-arrow"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Character Profile -->
+                <div class="character-panel">
+                    <h3>Your Destined Character</h3>
+
+                    <div class="character-traits" id="character-traits">
+                        <div class="trait-placeholder">Begin spinning to build your character!</div>
+                    </div>
+
+                    <div class="character-balance" id="character-balance">
+                        <div class="balance-indicator">
+                            <span class="balance-label">Character Balance:</span>
+                            <div class="balance-bars">
+                                <div class="balance-bar good">
+                                    <span class="balance-text">Strengths</span>
+                                    <div class="balance-fill" id="good-balance"></div>
+                                </div>
+                                <div class="balance-bar challenge">
+                                    <span class="balance-text">Challenges</span>
+                                    <div class="balance-fill" id="challenge-balance"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sound Controls -->
+            <div class="sound-controls">
+                <button class="btn btn--outline btn--sm" id="sound-toggle">🔊 Sound On</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pet Decision Screen -->
+    <div id="pet-decision-screen" class="screen">
+        <div class="container">
+            <div class="decision-content">
+                <h2>Destiny Awaits...</h2>
+                <p class="decision-subtitle">Will you be granted a companion?</p>
+
+                <div class="decision-visual">
+                    <div class="diamond-shape" id="decision-diamond">
+                        <div class="decision-text">?</div>
+                    </div>
+                </div>
+
+                <div class="decision-probabilities">
+                    <div class="prob-item">
+                        <span class="prob-val">90%</span>
+                        <span class="prob-label">No Pet</span>
+                    </div>
+                    <div class="prob-item highlight">
+                        <span class="prob-val">10%</span>
+                        <span class="prob-label">Pet Bonus</span>
+                    </div>
+                </div>
+
+                <button class="btn btn--primary btn--lg" id="roll-fate-btn">Test Your Fate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pet Reward Screen -->
+    <div id="pet-reward-screen" class="screen">
+        <div class="container">
+            <div class="reward-content">
+                <h2>Bonus Unlocked!</h2>
+                <div class="pet-reveal-container">
+                    <div class="pet-card" id="reward-pet-card">
+                        <!-- Content populated by JS -->
+                    </div>
+                </div>
+                <button class="btn btn--primary btn--lg" id="claim-pet-btn">Claim Companion</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="screen">
+        <div class="container">
+            <div class="results-content">
+                <h2>Your Destiny is Complete!</h2>
+                <div class="character-summary" id="character-summary">
+                    <!-- Character summary will be populated here -->
+                </div>
+                <div class="final-commentary" id="final-commentary">
+                    <!-- Final sarcastic commentary -->
+                </div>
+                <div class="results-actions">
+                    <button class="btn btn--primary btn--lg" id="save-character-btn">Save to Leaderboard</button>
+                    <button class="btn btn--secondary btn--lg" id="new-character-btn">Create New Character</button>
+                    <button class="btn btn--secondary btn--lg" id="view-leaderboard-btn">View Leaderboard</button>
+                    <button class="btn btn--outline btn--lg" id="export-btn">Export Character</button>
+                    <button class="btn btn--outline btn--lg" id="restart-btn">Return to Start</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard Screen -->
+    <div id="leaderboard-screen" class="screen">
+        <div class="container">
+            <div class="leaderboard-content">
+                <h2>Character Leaderboards</h2>
+
+                <div class="leaderboard-tabs">
+                    <button class="tab-btn active" data-tab="hero">Hero</button>
+                    <button class="tab-btn" data-tab="antihero">Anti-Hero</button>
+                    <button class="tab-btn" data-tab="villain">Villain</button>
+                    <button class="tab-btn" data-tab="overall">Overall</button>
+                </div>
+
+                <div class="leaderboard-content-area">
+                    <div class="leaderboard-tab active" id="tab-hero">
+                        <div class="leaderboard-list" id="leaderboard-hero"></div>
+                    </div>
+                    <div class="leaderboard-tab" id="tab-antihero">
+                        <div class="leaderboard-list" id="leaderboard-antihero"></div>
+                    </div>
+                    <div class="leaderboard-tab" id="tab-villain">
+                        <div class="leaderboard-list" id="leaderboard-villain"></div>
+                    </div>
+                    <div class="leaderboard-tab" id="tab-overall">
+                        <div class="leaderboard-list" id="leaderboard-overall"></div>
+                    </div>
+                </div>
+
+                <div class="leaderboard-actions">
+                    <button class="btn btn--outline btn--lg" id="back-to-welcome-btn">Back to Main Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
